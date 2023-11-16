@@ -57,7 +57,7 @@ Overall Efficiency: Very efficient for `class 0` with perfect recall and high pr
 
 ## Conclusion
 
-#### Data Science conclusions:
+#### Data Science conclusions (according to DS from LATAM):
 
 By looking at the results of the 6 trained models, it can be determined: there is no noticeable difference in results between _XGBoost_ and _LogisticRegression_. Does not decrease the performance of the model by reducing the features to the 10 most important. Improves the model’s performance when balancing classes, since it increases the recall of `class 1`.
 
