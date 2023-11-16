@@ -29,50 +29,50 @@ Based on the classification reports from the Jupiter notebook, here's a descript
 | 6.b.iii | LR | 0.88 | 0.25 | 0.52 | 0.69 | 0.65 | 0.36 |
 | 6.b.iv | LR | 0.81 | 0.53 | 1.00 | 0.01 | 0.90 | 0.03 |
 
-##### 4.b.i (XGBoost)
+#### 4.b.i (XGBoost)
 
 Overall Efficiency: Highly efficient for `class 0` with perfect recall and high precision. However, it completely fails to identify `class 1`, as indicated by zero precision and recall.
 
-##### 4.b.ii (Logistic Regression)
+#### 4.b.ii (Logistic Regression)
 
 Overall Efficiency: Shows good efficiency for `class 0` with high precision and very high recall. For `class 1`, it shows moderate precision but very low recall, indicating limited effectiveness in identifying `class 1` instances.
 
-##### 6.b.i (XGBoost with Feature Importance and Balance)
+#### 6.b.i (XGBoost with Feature Importance and Balance)
 
 Overall Efficiency: More balanced in identifying both classes. Shows high precision for `class 0` but moderate recall, and moderate precision for `class 1` with high recall. This model is better at identifying `class 1` instances compared to the previous ones.
 
-##### 6.b.ii (XGBoost with Feature Importance, without Balance)
+#### 6.b.ii (XGBoost with Feature Importance, without Balance)
 
 Overall Efficiency: Highly effective for `class 0` with perfect recall and high precision. For `class 1`, despite high precision, the recall is extremely low, indicating it rarely identifies `class 1` instances correctly.
 
-##### 6.b.iii (Logistic Regression with Feature Importance and Balance)
+#### 6.b.iii (Logistic Regression with Feature Importance and Balance)
 
 Overall Efficiency: Similar to 6.b.i (XGBoost), this model shows a balanced performance. High precision for `class 0` but moderate recall, and moderate precision for `class 1` with high recall. This model demonstrates a good balance in identifying both classes.
 
-##### 6.b.iv (Logistic Regression with Feature Importance, without Balance)
+#### 6.b.iv (Logistic Regression with Feature Importance, without Balance)
 
 Overall Efficiency: Very efficient for `class 0` with perfect recall and high precision. However, like 6.b.ii (XGBoost), it has higher precision for `class 1` but very low recall, indicating a limited ability to identify `class 1` instances.
 
->> In summary, models 6.b.i (XGBoost) and 6.b.iii (Logistic Regression) with feature importance and class balancing show a more balanced approach towards both classes, especially in identifying class 1 instances, which other models struggle with. The models without class balancing (4.b.i, 4.b.ii, 6.b.ii, 6.b.iv) are highly efficient for class 0 but have significant limitations in recognizing class 1.
+> In summary, models 6.b.i (XGBoost) and 6.b.iii (Logistic Regression) with feature importance and class balancing show a more balanced approach towards both classes, especially in identifying class 1 instances, which other models struggle with. The models without class balancing (4.b.i, 4.b.ii, 6.b.ii, 6.b.iv) are highly efficient for class 0 but have significant limitations in recognizing class 1.
 
 ## Conclusion
 
-##### Data Science conclusions:
+#### Data Science conclusions:
 
 By looking at the results of the 6 trained models, it can be determined: there is no noticeable difference in results between _XGBoost_ and _LogisticRegression_. Does not decrease the performance of the model by reducing the features to the 10 most important. Improves the model’s performance when balancing classes, since it increases the recall of `class 1`.
 
-##### My additional comments:
+#### My additional comments:
 
 Based on the analysis, the choice for the most productive model should be between _6.b.i (XGBoost with Feature Importance and Balance)_ and _6.b.iii (Logistic Regression with Feature Importance and Balance)_, as both are trained with the top 10 features and class balancing. These models show a balanced performance in identifying both classes, especially `class 1`, which is a common challenge.
 
-##### Decision criteria:
+#### Decision criteria:
 
 - If the priority is interpretability and computational efficiency, and if the dataset is not excessively large or complex, _6.b.iii (Logistic Regression with Feature Importance and Balance)_ would be the preferred choice.
 - If the focus is on handling larger datasets and potentially achieving slightly better performance, especially in complex scenarios, _6.b.i (XGBoost with Feature Importance and Balance)_ would be more suitable.
 
 Both models are well-suited for a balanced identification of both classes, with the choice depending on specific requirements such as computational resources, dataset size, and the need for interpretability.
 
-##### Dive deeper into my analysis
+#### Dive deeper into my analysis
 
 Given that the dataset consists of real and public data, the choice between _6.b.i (XGBoost with Feature Importance and Balance)_ and _6.b.iii (Logistic Regression with Feature Importance and Balance)_ for a `Production` environment should consider the following factors:
 
@@ -82,7 +82,7 @@ Given that the dataset consists of real and public data, the choice between _6.b
 - **Performance Metrics**: both models show balanced performance, but if the priority is slightly better performance in `class 1` identification, which might be crucial for real and public datasets, _XGBoost (6.b.i)_ could be a better choice.
 - **Real-time or Batch Processing**: for real-time predictions, the computational efficiency of Logistic Regression could be beneficial. For batch processing, where time is less of a constraint, _XGBoost_ might be more suitable.
 
-##### Recommendation for Production Environment:
+#### Recommendation for Production Environment:
 
 - If the dataset is large and complex, and if computational resources and model performance (especially for `class 1`) are the priority over interpretability, _6.b.i (XGBoost with Feature Importance and Balance)_ would be more suitable.
 - If interpretability, transparency, and computational efficiency are more critical, especially considering public scrutiny and understanding, _6.b.iii (Logistic Regression with Feature Importance and Balance)_ would be the preferred choice.
@@ -93,7 +93,7 @@ For this challenge I would choose the model `6.b.i (XGBoost with Feature Importa
 
 ## Bugs Fixes and code improvements
 
-##### File exploration.ipynb:
+#### File exploration.ipynb:
 There were several bugs (Unexpected arguments) in `barplot` (Seaborn library) call. For example, this one:
 
 ```python
@@ -152,8 +152,15 @@ STRESS_URL = http://127.0.0.1:8000
 
 ## Continuous Integration & Continuous Delivery
 
-In order to depliver the project follow these steps:
-(pending...)
+In order to implement CI/CD I've configured GitHub Actions, a feature of GitHub that allows you to automate, customize, and execute the software development workflows right in the repository.
+
+This challenge will be deployed to Google Cloud Platform. Files to consider:
+
+| Path | Description |
+| - | - |
+| .github/workflows/ci.yml | Continuous Integration rules |
+| .github/workflows/cd.yml | Continuous Delivery rules |
+| Dockerfile | A recipe to accomplish delivery to GCP environment |
 
 ## License
 
