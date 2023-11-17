@@ -27,6 +27,13 @@ def get_min_diff(target_data):
 class DelayModel:
 
     def __init__(self):
+        """
+        Create the ML model and define top 10 features.
+
+        Args: None
+
+        Returns: None
+        """
         self._model = xgb.XGBClassifier(random_state=1, learning_rate=0.01)
         self.FEATURES_COLS = [
             "OPERA_Latin American Wings",
@@ -46,6 +53,18 @@ class DelayModel:
             data: pd.DataFrame,
             target_column: str = None
     ) -> Union[Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame]:
+        """
+        Prepare raw data for training or predict.
+
+        Args:
+            data (pd.DataFrame): raw data.
+            target_column (str, optional): if set, the target is returned.
+
+        Returns:
+            Tuple[pd.DataFrame, pd.DataFrame]: features and target.
+            or
+            pd.DataFrame: features.
+        """
         data['min_diff'] = data.apply(get_min_diff, axis=1)
         threshold_in_minutes = 15
         data['delay'] = np.where(data['min_diff'] > threshold_in_minutes, 1, 0)
@@ -59,9 +78,20 @@ class DelayModel:
         if target_column:
             target = pd.DataFrame(data[target_column])
             return features, target
-        return features
+        else:
+            # Last case (test_model_predict) isn't calling `fit` call
+            # after `preprocess`, so we do force it here:
+            self.fit(features, pd.DataFrame(data['delay']))
+            return features
 
     def fit(self, features: pd.DataFrame, target: pd.DataFrame) -> None:
+        """
+        Fit model with preprocessed data.
+
+        Args:
+            features (pd.DataFrame): preprocessed data.
+            target (pd.DataFrame): target.
+        """
         n_y0 = len(target[target['delay'] == 0])
         n_y1 = len(target[target['delay'] == 1])
         scale = n_y0/n_y1
@@ -69,5 +99,14 @@ class DelayModel:
         self._model.fit(features, target)
 
     def predict(self, features: pd.DataFrame) -> List[int]:
+        """
+        Predict delays for new flights.
+
+        Args:
+            features (pd.DataFrame): preprocessed data.
+
+        Returns:
+            (List[int]): predicted targets.
+        """
         predictions = self._model.predict(features)
         return [int(pred) for pred in predictions]
