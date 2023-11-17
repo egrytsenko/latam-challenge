@@ -187,7 +187,7 @@ def get_min_diff(target_data):
     return min_diff
 ```
 
-6. Small bug in definition of the return type of `preprocess` method from
+6. Small bug in definition of `Union` in `preprocess` method from `DelayModel` class. In Python, when specifying type hints with `Union` for multiple potential types, you should use square brackets `[]` instead of parentheses `()`.
 
 From (`Generics should be specified through square brackets`):
 ```python
