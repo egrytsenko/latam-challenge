@@ -1,3 +1,13 @@
+"""
+Challenge: Flights Delays - ML Model to predict the probability of delay for a flight
+           taking off or landing at SCL airport.
+
+Description: For this challenge I would choose the model 6.b.i (XGBoost with Feature Importance
+and Balance)! So, let's transcribe it to challenge/model.py as well and test it!
+
+Author: "Eugenio Grytsenko" <yevgry@gmail.com>
+"""
+
 import xgboost as xgb
 from typing import Tuple, Union, List
 
@@ -6,9 +16,6 @@ import numpy as np
 
 from datetime import datetime
 
-"""
-
-"""
 
 def get_min_diff(target_data):
     date_o = datetime.strptime(target_data['Fecha-O'], '%Y-%m-%d %H:%M:%S')

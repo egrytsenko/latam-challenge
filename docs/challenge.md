@@ -138,7 +138,12 @@ The challenge requires [Python](https://www.python.org/downloads/) v3+ to run.
 Install the dependencies and start the server.
 
 ```sh
-pip3 install -r requirements.txt
+make install
+```
+
+Run all project tests.
+
+```sh
 make model-test
 make api-test
 make stress-test
