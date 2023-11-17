@@ -37,8 +37,8 @@ jobs:
 
     - name: Deploy to Cloud Run
       id: deploy
-      uses: google-github-actions/deploy-cloudrun@main
+      uses: google-github-actions/deploy-cloudrun@v1
       with:
         service: latam-challenge-egrytsenko-api
         image: ${{ env.IMAGE }}:latest
-        credentials: ${{ secrets.GCP_SA_KEY }}
+        region: us-central1
