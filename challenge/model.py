@@ -22,10 +22,13 @@ import pandas as pd
 import numpy as np
 
 
-def get_min_diff(target_data):
-    date_o = pd.to_datetime(target_data['Fecha-O'])
-    date_i = pd.to_datetime(target_data['Fecha-I'])
-    min_diff = (date_o - date_i).dt.total_seconds() / 60
+def get_min_diff(target_data, default_delay=0):
+    if 'Fecha-O' in target_data and 'Fecha-I' in target_data:
+        date_o = pd.to_datetime(target_data['Fecha-O'])
+        date_i = pd.to_datetime(target_data['Fecha-I'])
+        min_diff = (date_o - date_i).dt.total_seconds() / 60
+    else:
+        min_diff = pd.Series([default_delay] * len(target_data))
     return min_diff
 
 
@@ -70,7 +73,6 @@ class DelayModel:
             or
             pd.DataFrame: features.
         """
-        # data['min_diff'] = data.apply(get_min_diff, axis=1)
         data['min_diff'] = get_min_diff(data)
         threshold_in_minutes = 15
         data['delay'] = np.where(data['min_diff'] > threshold_in_minutes, 1, 0)
@@ -80,6 +82,11 @@ class DelayModel:
             pd.get_dummies(data['MES'], prefix='MES')],
             axis=1
         )
+        # Fill all features with default values
+        for col in self.top_10_features:
+            if col not in features.columns:
+                features[col] = 0
+        # Select top 10 features
         features = features[self.top_10_features]
         if target_column:
             target = pd.DataFrame(data[target_column])
@@ -100,7 +107,10 @@ class DelayModel:
         """
         n_y0 = len(target[target['delay'] == 0])
         n_y1 = len(target[target['delay'] == 1])
-        scale = n_y0/n_y1
+        if n_y1 == 0:
+            scale = 1.0  # dealing with division by zero
+        else:
+            scale = n_y0 / n_y1
         self._model.set_params(scale_pos_weight=scale)
         self._model.fit(features, target)
 
