@@ -1,58 +1,66 @@
-import pandas as pd
-
+import xgboost as xgb
 from typing import Tuple, Union, List
+
+import pandas as pd
+import numpy as np
+
+from datetime import datetime
+
+"""
+
+"""
+
+def get_min_diff(target_data):
+    date_o = datetime.strptime(target_data['Fecha-O'], '%Y-%m-%d %H:%M:%S')
+    date_i = datetime.strptime(target_data['Fecha-I'], '%Y-%m-%d %H:%M:%S')
+    min_diff = ((date_o - date_i).total_seconds())/60
+    return min_diff
+
 
 class DelayModel:
 
-    def __init__(
-        self
-    ):
-        self._model = None # Model should be saved in this attribute.
+    def __init__(self):
+        self._model = xgb.XGBClassifier(random_state=1, learning_rate=0.01)
+        self.FEATURES_COLS = [
+            "OPERA_Latin American Wings",
+            "MES_7",
+            "MES_10",
+            "OPERA_Grupo LATAM",
+            "MES_12",
+            "TIPOVUELO_I",
+            "MES_4",
+            "MES_11",
+            "OPERA_Sky Airline",
+            "OPERA_Copa Air"
+        ]
 
     def preprocess(
-        self,
-        data: pd.DataFrame,
-        target_column: str = None
+            self,
+            data: pd.DataFrame,
+            target_column: str = None
     ) -> Union[Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame]:
-        """
-        Prepare raw data for training or predict.
+        data['min_diff'] = data.apply(get_min_diff, axis=1)
+        threshold_in_minutes = 15
+        data['delay'] = np.where(data['min_diff'] > threshold_in_minutes, 1, 0)
+        features = pd.concat([
+            pd.get_dummies(data['OPERA'], prefix='OPERA'),
+            pd.get_dummies(data['TIPOVUELO'], prefix='TIPOVUELO'),
+            pd.get_dummies(data['MES'], prefix='MES')],
+            axis=1
+        )
+        features = features[self.FEATURES_COLS]
+        if target_column:
+            target = pd.DataFrame(data[target_column])
+            return features, target
+        return features
 
-        Args:
-            data (pd.DataFrame): raw data.
-            target_column (str, optional): if set, the target is returned.
+    def fit(self, features: pd.DataFrame, target: pd.DataFrame) -> None:
+        n_y0 = len(target[target['delay'] == 0])
+        n_y1 = len(target[target['delay'] == 1])
+        scale = n_y0/n_y1
+        self._model.set_params(scale_pos_weight=scale)
+        self._model.fit(features, target)
 
-        Returns:
-            Tuple[pd.DataFrame, pd.DataFrame]: features and target.
-            or
-            pd.DataFrame: features.
-        """
-        return
-
-    def fit(
-        self,
-        features: pd.DataFrame,
-        target: pd.DataFrame
-    ) -> None:
-        """
-        Fit model with preprocessed data.
-
-        Args:
-            features (pd.DataFrame): preprocessed data.
-            target (pd.DataFrame): target.
-        """
-        return
-
-    def predict(
-        self,
-        features: pd.DataFrame
-    ) -> List[int]:
-        """
-        Predict delays for new flights.
-
-        Args:
-            features (pd.DataFrame): preprocessed data.
-        
-        Returns:
-            (List[int]): predicted targets.
-        """
-        return
+    def predict(self, features: pd.DataFrame) -> List[int]:
+        predictions = self._model.predict(features)
+        return [int(pred) for pred in predictions]

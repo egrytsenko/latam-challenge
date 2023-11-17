@@ -20,14 +20,14 @@ The Data Scientist, trained a model to predict the **probability of delay** for 
 
 Based on the classification reports from the Jupiter notebook, here's a description of each model's performance and efficiency:
 
-| Model | Classifier | Precision 0 | Precision 1 | Recall 0 | Recall 1 | F1-Score 0 | F1-Score 1 |
-|-|-|-|-|-|-|-|-|
-| 4.b.i | XGB | 0.81 | 0.00 | 1.00 | 0.00 | 0.90 | 0.00 |
-| 4.b.ii | LR | 0.82 | 0.56 | 0.99 | 0.03 | 0.90 | 0.06 |
-| 6.b.i | XGB | 0.88 | 0.25 | 0.52 | 0.69 | 0.66 | 0.37 |
-| 6.b.ii | XGB | 0.81 | 0.76 | 1.00 | 0.01 | 0.90 | 0.01 |
-| 6.b.iii | LR | 0.88 | 0.25 | 0.52 | 0.69 | 0.65 | 0.36 |
-| 6.b.iv | LR | 0.81 | 0.53 | 1.00 | 0.01 | 0.90 | 0.03 |
+| Model | Classifier | Precision 0 | Precision 1 | Recall 0 | Recall 1 | F1-Score 0 | F1-Score 1 | Accuracy |
+|-|-|-|-|-|-|-|-|-|
+| 4.b.i | XGB | 0.81 | 0.00 | 1.00 | 0.00 | 0.90 | 0.00 | 0.81 |
+| 4.b.ii | LR | 0.82 | 0.56 | 0.99 | 0.03 | 0.90 | 0.06 | 0.81 |
+| 6.b.i | XGB | 0.88 | 0.25 | 0.52 | 0.69 | 0.66 | 0.37 | 0.55 |
+| 6.b.ii | XGB | 0.81 | 0.76 | 1.00 | 0.01 | 0.90 | 0.01 | 0.81 |
+| 6.b.iii | LR | 0.88 | 0.25 | 0.52 | 0.69 | 0.65 | 0.36 | 0.55 |
+| 6.b.iv | LR | 0.81 | 0.53 | 1.00 | 0.01 | 0.90 | 0.03 | 0.81 |
 
 #### 4.b.i (XGBoost)
 
@@ -157,7 +157,7 @@ In order to implement CI/CD I've configured GitHub Actions, a feature of GitHub 
 This challenge will be deployed to Google Cloud Platform. Files to consider:
 
 | Path | Description |
-| - | - |
+|-|-|
 | .github/workflows/ci.yml | Continuous Integration rules |
 | .github/workflows/cd.yml | Continuous Delivery rules |
 | Dockerfile | A recipe to accomplish delivery to GCP environment |
