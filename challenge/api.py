@@ -25,22 +25,47 @@ model = DelayModel()
 
 
 class Flight(BaseModel):
+    """
+    A model representing flight data for prediction.
+    Fields:
+    - OPERA: Name of the airline that operates.
+    - TIPOVUELO: Type of flight, I=International, N=National.
+    - MES: Number of the month of operation of the flight.
+    """
     OPERA: str
     TIPOVUELO: str
     MES: int
 
 
 class PredictRequest(BaseModel):
+    """
+    A model representing a request for flight delay prediction.
+    Contains a list of Flight objects.
+    """
     flights: List[Flight]
 
 
 @app.get("/health", status_code=200)
 async def get_health() -> dict:
+    """
+    Health check endpoint.
+    Returns a JSON object with the status 'OK' indicating that the API is operational.
+    """
     return {"status": "OK"}
 
 
 @app.post("/predict", status_code=200)
 async def post_predict(request: PredictRequest) -> dict:
+    """
+    Endpoint for predicting flight delays.
+    Takes a PredictRequest object containing flight data and returns predictions.
+
+    Args:
+    - request: A PredictRequest object containing flight data.
+
+    Returns:
+    - A dictionary with the prediction results.
+    """
     try:
         df = pd.DataFrame([flight.dict() for flight in request.flights])
 
@@ -49,8 +74,12 @@ async def post_predict(request: PredictRequest) -> dict:
         if not all(df['MES'].between(1, 12)):
             raise ValueError("MES value out of range")
 
+        # Preprocess data & make predictions
         processed_features = model.preprocess(df)
         prediction = model.predict(processed_features)
+
+        # Successful response from model
         return {"predict": prediction}
     except ValueError as e:
+        # Catch errors from input validation
         raise HTTPException(status_code=400, detail=str(e))
