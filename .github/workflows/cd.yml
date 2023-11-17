@@ -11,6 +11,7 @@ env:
 
 jobs:
   deploy:
+    needs: build-and-test
     runs-on: ubuntu-latest
     permissions:
       contents: read
