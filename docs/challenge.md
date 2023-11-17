@@ -94,7 +94,8 @@ For this challenge I would choose the model `6.b.i (XGBoost with Feature Importa
 ## Bugs Fixes and code improvements
 
 #### File exploration.ipynb:
-There were several bugs (Unexpected arguments) in `barplot` (Seaborn library) call. For example, this one:
+
+1. There were several bugs (Unexpected arguments) in `barplot` (Seaborn library) call. For example, this one:
 
 ```python
 sns.barplot(flight_type_rate_values, flight_type_rate['Tasa (%)'])
@@ -107,7 +108,109 @@ sns.barplot(x=flight_type_rate_values, y=flight_type_rate['Tasa (%)'])
 ```
 Reference at: https://seaborn.pydata.org/generated/seaborn.barplot.html
 
+2. Simplified chained comparisons in `is_high_season` method:
+
+From:
+```python
+    if ((fecha >= range1_min and fecha <= range1_max) or 
+        (fecha >= range2_min and fecha <= range2_max) or 
+        (fecha >= range3_min and fecha <= range3_max) or
+        (fecha >= range4_min and fecha <= range4_max)):
+        return 1
+    else:
+        return 0
+```
+
+To (improved):
+```python
+    if (range1_min <= target_date <= range1_max or 
+        range2_min <= target_date <= range2_max or 
+        range3_min <= target_date <= range3_max or
+        range4_min <= target_date <= range4_max):
+        return 1
+    else:
+        return 0
+```
+
+3. Removed redundant parenthesis and added simplified chained comparisons in `get_period_day` method:
+
+From:
+```python
+    if(date_time > morning_min and date_time < morning_max):
+        return 'mañana'
+    elif(date_time > afternoon_min and date_time < afternoon_max):
+        return 'tarde'
+    elif(
+        (date_time > evening_min and date_time < evening_max) or
+        (date_time > night_min and date_time < night_max)
+    ):
+        return 'noche'
+```
+
+To (improved):
+```python
+    period_morning = 'mañana'
+    period_afternoon = 'tarde'
+    period_night = 'noche'
+
+    if morning_min < date_time < morning_max:
+        return period_morning
+    elif afternoon_min < date_time < afternoon_max:
+        return period_afternoon
+    elif evening_min < date_time < evening_max:
+        return period_night
+    elif night_min < date_time < night_max:
+        return period_night
+```
+
 NOTE: also, some variable names within methods were renamed to naming standards to English.
+
+4. Model's code improvements changed the implementation of `get_min_diff` method from applying to simplifying it by converting with `pd.to_datetime` the entire column into a datetime format, and then the subtraction operation is performed directly on the columns:
+- Old `get_min_diff` performance observations: 4 tests passed in 10.80s
+- New `get_min_diff` performance observations: 4 tests passed in 1.91s
+
+From:
+```python
+def get_min_diff(data):
+    fecha_o = datetime.strptime(data['Fecha-O'], '%Y-%m-%d %H:%M:%S')
+    fecha_i = datetime.strptime(data['Fecha-I'], '%Y-%m-%d %H:%M:%S')
+    min_diff = ((fecha_o - fecha_i).total_seconds())/60
+    return min_diff
+```
+
+To (improved performance):
+```python
+def get_min_diff(target_data):
+    date_o = pd.to_datetime(target_data['Fecha-O'])
+    date_i = pd.to_datetime(target_data['Fecha-I'])
+    min_diff = (date_o - date_i).dt.total_seconds() / 60
+    return min_diff
+```
+
+6. Small bug in definition of the return type of `preprocess` method from
+
+From (`Generics should be specified through square brackets`):
+```python
+...
+    def preprocess(
+            self,
+            data: pd.DataFrame,
+            target_column: str = None
+    ) -> Union(Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame):
+              ^                                               ^
+...
+```
+
+To (fixed):
+```python
+...
+    def preprocess(
+            self,
+            data: pd.DataFrame,
+            target_column: str = None
+    ) -> Union[Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame]:
+...
+```
 
 ## TODO
 
@@ -155,9 +258,9 @@ Make sure you've configured properly the `STRESS_URL` within Makefile (line 26).
 STRESS_URL = http://127.0.0.1:8000
 ```
 
-## Continuous Integration & Continuous Delivery
+## API & Continuous Integration / Continuous Delivery
 
-In order to implement CI/CD I've configured GitHub Actions, a feature of GitHub that allows you to automate, customize, and execute the software development workflows right in the repository.
+In order to implement CI/CD and to be able to deploy the API, I've configured GitHub Actions, a feature of GitHub that allows you to automate, customize, and execute the software development workflows right in the repository.
 
 This challenge will be deployed to Google Cloud Platform. Files to consider:
 

@@ -9,8 +9,8 @@ Model's code improvements: changed the implementation of `get_min_diff` method f
                            simplifying it by converting with pd.to_datetime the entire column
                            into a datetime format, and then the subtraction operation is
                            performed directly on the columns:
-                                - Old `get_min_diff` performance: 4 passed in 10.80s
-                                - New `get_min_diff` performance: 4 passed in 1.91s
+                                - Old `get_min_diff` performance: 4 tests passed in 10.80s
+                                - New `get_min_diff` performance: 4 tests passed in 1.91s
 
 Author: "Eugenio Grytsenko" <yevgry@gmail.com>
 """
