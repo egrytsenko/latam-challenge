@@ -5,6 +5,13 @@ Challenge: Flights Delays - ML Model to predict the probability of delay for a f
 Description: For this challenge I would choose the model 6.b.i (XGBoost with Feature Importance
 and Balance)! So, let's transcribe it to challenge/model.py as well and test it!
 
+Model's code improvements: changed the implementation of `get_min_diff` method from applying to
+                           simplifying it by converting with pd.to_datetime the entire column
+                           into a datetime format, and then the subtraction operation is
+                           performed directly on the columns:
+                                - Old `get_min_diff` performance: 4 passed in 10.80s
+                                - New `get_min_diff` performance: 4 passed in 1.91s
+
 Author: "Eugenio Grytsenko" <yevgry@gmail.com>
 """
 
@@ -14,13 +21,11 @@ from typing import Tuple, Union, List
 import pandas as pd
 import numpy as np
 
-from datetime import datetime
-
 
 def get_min_diff(target_data):
-    date_o = datetime.strptime(target_data['Fecha-O'], '%Y-%m-%d %H:%M:%S')
-    date_i = datetime.strptime(target_data['Fecha-I'], '%Y-%m-%d %H:%M:%S')
-    min_diff = ((date_o - date_i).total_seconds())/60
+    date_o = pd.to_datetime(target_data['Fecha-O'])
+    date_i = pd.to_datetime(target_data['Fecha-I'])
+    min_diff = (date_o - date_i).dt.total_seconds() / 60
     return min_diff
 
 
@@ -35,7 +40,7 @@ class DelayModel:
         Returns: None
         """
         self._model = xgb.XGBClassifier(random_state=1, learning_rate=0.01)
-        self.FEATURES_COLS = [
+        self.top_10_features = [
             "OPERA_Latin American Wings",
             "MES_7",
             "MES_10",
@@ -65,7 +70,8 @@ class DelayModel:
             or
             pd.DataFrame: features.
         """
-        data['min_diff'] = data.apply(get_min_diff, axis=1)
+        # data['min_diff'] = data.apply(get_min_diff, axis=1)
+        data['min_diff'] = get_min_diff(data)
         threshold_in_minutes = 15
         data['delay'] = np.where(data['min_diff'] > threshold_in_minutes, 1, 0)
         features = pd.concat([
@@ -74,7 +80,7 @@ class DelayModel:
             pd.get_dummies(data['MES'], prefix='MES')],
             axis=1
         )
-        features = features[self.FEATURES_COLS]
+        features = features[self.top_10_features]
         if target_column:
             target = pd.DataFrame(data[target_column])
             return features, target
